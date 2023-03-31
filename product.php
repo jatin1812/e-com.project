@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>DigiMart</title>
-	<link rel="icon" type="image/x-icon" href="img/favicon2.svg">
+	<link rel="icon" type="image/x-icon" href="img/favicon.svg">
 	<link rel="stylesheet" href="css/style.css" type="text/css">
 </head>
 <body>
