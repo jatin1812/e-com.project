@@ -8,7 +8,7 @@
 <body>
 <header>
 	<img src="img/g23.png" height="40px">
-	<<div class="search-container">
+	<div class="search-container">
 	<div class="search-bar">
 	<input type="search" class="search" placeholder="Search...">
 	<div class="search-btn"><img src="img/search.svg"></div>
