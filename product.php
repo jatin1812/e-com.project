@@ -2,18 +2,20 @@
 <html>
 <head>
 	<title>DigiMart</title>
-	<link rel="icon" type="image/x-icon" href="img/favicon.svg">
+	<meta name="viewport" content="initial-scale=1.0,width=device-width">
+	<link rel ="icon" type="image/x-icon" href="img/favicon.svg">
 	<link rel="stylesheet" href="css/style.css" type="text/css">
 </head>
 <body>
 <header>
-	<img src="img/g23.png" height="40px">
-	<div class="search-container">
-	<div class="search-bar">
-	<input type="search" class="search" placeholder="Search...">
-	<div class="search-btn"><img src="img/search.svg"></div>
-	</div>
-	<img src="img/defdp.jpg" style="height:40px;border-radius:50%">
+	<img src="img/g23.png" class="logo">
+	<img src="img/g23mob.png" class="logo-mob">
+	<div class="container">
+		<div class="search-container">
+		<input type="search" placeholder="Search..." class="search">
+		<img src="img/search.svg" class="search-btn">
+		<img src="img/defdp.jpg" class="dp">
+		</div>
 	</div>
 </header>
 <div class="grid-cont">
