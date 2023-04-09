@@ -16,7 +16,7 @@
     max-width: 500px;
 min-height: 350px;
 box-shadow: 0px 5px 15px #393e46;
-shado
+
 border-radius: 5px;}
         h1{text-align: center}
 
