@@ -1,3 +1,6 @@
+<?php
+include 'dbconnect.php';
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,27 +10,39 @@
 	<link rel="stylesheet" href="css/style.css" type="text/css">
 </head>
 <body>
-<header>
-	<img src="img/g23.png" class="logo">
-	<img src="img/g23mob.png" class="logo-mob">
-	<div class="container">
-		<div class="search-container">
-		<input type="search" placeholder="Search..." class="search">
-		<img src="img/search.svg" class="search-btn">
-		<img src="img/defdp.jpg" class="dp">
-		</div>
-	</div>
-</header>
+<?php
+include 'header.php';
+if (isset($_GET['pid'])){
+$pid = $_GET['pid'];
+
+if(!is_numeric($pid)){
+	die("<div class='error'><h1>No Such Product!</h1></div>");
+	}
+	else{
+		$sql = "SELECT * FROM product_details WHERE pid=$pid";
+		$result = $con->query($sql);
+		if($result->num_rows>0){
+			$row = $result->fetch_assoc();
+		}
+		else{
+			die("<div class='error'><h1>No Such Product!</h1></div>");
+		}
+	}
+}
+else{
+	die("<div class='error'><h1>No Such Product!</h1></div>");
+}
+?>
 <div class="grid-cont">
 	<div class="slide-container">
 		<div class ="slide fade">
-			<img src="img/p1.jpg">
+			<img src="img/p<?php echo $row["pid"] ?>i1.jpg">
 		</div>
 		<div class ="slide fade">
-			<img src="img/p2.jpg">
+			<img src="img/p<?php echo $row["pid"] ?>i2.jpg">
 		</div>
 		<div class ="slide fade">
-			<img src="img/p3.jpg">
+			<img src="img/p<?php echo $row["pid"] ?>i3.jpg">
 		</div>
 		<a class="prev" onclick="plusSlide(-1)">&#10094;</a>
 		<a class="next" onclick="plusSlide(1)">&#10095;</a>
@@ -39,11 +54,24 @@
 	</div>
 
 	<div class="desc">
-	<h5>M.R.P:</h5> <h3>₹ 999</h3>
+	<h5>M.R.P:</h5> <h3>₹ <?php
+	include 'numformat.php';
+	echo numFormatIndia($row["mrp"]);
+	?></h3>
 	<hr>
+	<div class="stock" id="stock-msg">
+		<?php
+		if($row["qty"]>0){
+			echo "<span style='color:green'>In Stock</span>";
+		}
+		else{
+			echo "Out Of Stock";
+		}
+		?>
+	</div>
 	<div class="shop-container">
 	<h4>Qty.: </h4>
-	<select class="qty">
+	<select class="qty" id="qty" onchange="stockCheck(this.value,<?php echo $row["qty"] ?>)">
 		<option value="1">1</option>
 		<option value="2">2</option>
 		<option value="3">3</option>
@@ -55,13 +83,13 @@
 		<option value="9">9</option>
 		<option value="10">10</option>
 	</select>
-	<button class="buy"><img src="img/shop.svg" width="30px" height="30px"><span>Buy</span></button>
-	<button class="add-cart"><img src="img/cart-plus.svg" width="30px" height="30px"><span>Add To Cart</span></button>
+	<button class="buy" id="buy"><img src="img/shop.svg" width="24px" height="24px"><span>Buy</span></button>
+	<button class="add-cart" id="add-cart"><img src="img/cart-plus.svg" width="24px" height="24px"><span>Add To Cart</span></button>
 	</div>
-	<h2>layasa Men's Sneakers Walking Shoe</h2>
+	<h2><?php echo $row["title"]; ?></h2><br><br>
+	<h4>Product Description:</h4>
 		<div style="padding:1% 2%">
-		<h4>Product Description:</h4><br>
-		Elevate your style with this classy pair of Walking Sneaker Shoes for Men from the house of Layasa Brand These Stylish latest Design Sneaker for Men boasts Synthetic Upper with Rubber SOLE for durability These Walking Sneakers are the perfect choice for all those who do not like to compromise on what they wear These Men's Sneaker can be worn for casual and outdoor Purpose. Also best fit for Casual, Outdoor, Fashion and Evening Outing Purpose Layasa Sneakers are made up of High Quality Premium Synthetic material which stays strong and durable - meaning the Sneakers will last much longer Soft Cushioned Insole and Rubber Sole ensures cushioning to the feet removing heel strain Layasa endorses style that strikes a fine balance between the classic and the modern, the discreet and the bold with good taste being the only criterion for selection.
+		<?php echo $row["description"]; ?>
 		</div>
 	</div>
 </div>
@@ -69,23 +97,26 @@
 <div class="details">
 		<h4>Product Details:</h4>
 		<ul style="margin:1%">
-		<li>Product Dimensions : 30 x 12 x 7 cm; 1.6 Kilograms</li>
-		<li>Date First Available : 4 February 2023</li>
-		<li>Manufacturer : LEVEL INTERNATIONAL</li>
-		<li>ASIN : B0BTV827CN</li>
-		<li>Item model number : LKJ2401</li>
-		<li>Country of Origin : India</li>
-		<li>Department : mens</li>
-		<li>Manufacturer : LEVEL INTERNATIONAL</li>
-		<li>Packer : LEVEL INTERNATIONAL</li>
-		<li>Item Weight : 1 kg 600 g</li>
-		<li>Item Dimensions LxWxH : 30 x 12 x 7 Centimeters</li>
-		<li>Net Quantity : 1.00 count</li>
-		<li>Generic Name : Sneaker</li>
+		<?php
+		$str = explode(".,.",$row["detail"]);
+		foreach($str as $val){
+			echo "<li>$val</li>";
+		}
+		?>
 		</ul>
 </div>
 <hr style="margin:1% 1%">
 <script src="js/script.js">
+</script>
+<script src="js/script2.js">
+</script>
+<script>
+	let stock = <?php echo $row["qty"]; ?>;
+	if(stock===0){
+		document.getElementById("qty").disabled = true;
+		document.getElementById("buy").disabled = true;
+		document.getElementById("add-cart").disabled = true;
+	}
 </script>
 </body>
 </html>
