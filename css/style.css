@@ -3,6 +3,14 @@
 }
 body{
 	margin: 0;
+	position: relative;
+}
+body::-webkit-scrollbar{
+	display: none;
+}
+body{
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 header{
 	display: flex;
@@ -15,6 +23,15 @@ header{
 	padding-right: 0;
 	background-color: #222831;
 	box-shadow: 0 1px 10px 0px #222831;
+}
+.error{
+	margin-top:15%;
+	text-align: center;
+	text-decoration: underline;
+	z-index: 1;
+}
+.error h1{
+	font-size: 40px;
 }
 .logo{
 	height: 40px;
@@ -160,6 +177,9 @@ h2,h5,h3,h4{
 	display: inline-block;
 	padding: 0;
 }
+h2{
+	text-decoration: underline;
+}
 .buy{
 	display: grid;
 	grid-template-columns: auto auto;
@@ -187,6 +207,10 @@ h2,h5,h3,h4{
 	display: flex;
 	padding: 8px;
 	transition: all 0.5s;
+}
+.stock{
+	color: red;
+	margin: 1%;
 }
 .buy span,img{
 	align-self: center;
@@ -220,6 +244,15 @@ header{
 	box-shadow: 0 1px 10px 0px #222831;
 	z-index: 1;
 }
+.error{
+	margin-top:50%;
+	text-align: center;
+	text-decoration: underline;
+	z-index: 1;
+}
+.error h1{
+	font-size: 30px;
+}
 .logo{
 	display: none;
 	height: 40px;
@@ -234,7 +267,7 @@ header{
 	margin: 0;
 	font-size: 20px;
 	float: left;
-	width: 200px;
+	width: 160px;
 }
 .search-btn{
 	margin: 0;
@@ -333,6 +366,12 @@ header{
 	position: relative;
 	font-size: 21px;
 }
+.details ul{
+	font-size: 18px;
+}
+.desc div{
+	font-size: 18px;
+}
 .desc{
 	max-height: 100%;
 	padding: 1%;
@@ -353,6 +392,7 @@ header{
 }
 .qty{
 	padding: 1%;
+	align-self: stretch;
 }
 .qty:active,.buy:active,.add-cart:active{
 	outline: none;
@@ -362,7 +402,12 @@ h2,h5,h3,h4{
 	display: inline-block;
 	padding: 0;
 }
+h2{
+	font-size: 27px;
+	text-decoration: underline;
+}
 .buy{
+	align-self: stretch;
 	display: grid;
 	grid-template-columns: auto auto;
 	gap: 8px;
@@ -389,6 +434,10 @@ h2,h5,h3,h4{
 	display: flex;
 	padding: 8px;
 	transition: all 0.5s;
+}
+.stock{
+	color: red;
+	margin: 1%;
 }
 .buy span,img{
 	align-self: center;
