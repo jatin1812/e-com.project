@@ -1,61 +1,81 @@
+<?php
+include 'dbconnect.php';
+$style = array("inside","input","inside","input");
+$mailvalue = "";
+$pwdvalue = "";
+function test_input($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
+if(isset($_POST['login'])){
+    $email = test_input($_POST['email']);
+    $pwd = test_input($_POST['pass']);
+    
+    $sql="SELECT pwd,fname,lname from user_details WHERE email = '$email'";
+    $result = $con->query($sql);
+    if($result->num_rows>0){
+        $row = $result->fetch_assoc();
+        $check_pwd = password_verify($pwd, $row['pwd']);
+        if($check_pwd===true){
+            session_start();
+            $_SESSION["name"] = $row['fname']." ".$row['lname'];
+            header("location: test.php");
+        }
+        else{
+            $style[2] = "inside-error";
+            $style[3] = "input-error";
+            $pwdvalue = $pwd;
+            $mailvalue = $email;
+        }
+    }
+    else{
+        $style[0] = "inside-error";
+        $style[1] = "input-error";
+        $mailvalue = $email;
+        $pwdvalue = $pwd;
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>DigiMart</title>
-    <meta charset="UTF-8" />
-    <link rel="shortcut icon" href="img/favicon.svg" type="image/x-icon">
-    <style>
-        body{background: linear-gradient(#ff2e63,white);
-        background-repeat: no-repeat;
-        font-size: 16px;
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
-           
-        }
-        form{width: 40%;
-        margin: 0 auto;
-    max-width: 500px;
-min-height: 350px;
-box-shadow: 0px 5px 15px #393e46;
+<head>
+<title>Log In - DigiMart</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="initial-scale=1.0,width=device-width">
+<link rel="shortcut icon" href="img/favicon.svg" type="image/x-icon">
+<link rel="stylesheet" href="css/loginStyle.css" type="text/css">
+<style>
+</style>
+</head>
 
-border-radius: 5px;}
-        h1{text-align: center}
-
-      .inside{display: block;
-    margin: auto;
-    width: 70%;
-padding:10px 10%;}
-.footer{margin: 0 auto;
-width: 40%; }
-
-
-header{display: block;
-    position: fixed;
-
-    left:0;
-    right: none;
-    top: 0;
-    width: 100%;
-    background:linear-gradient(#00adb5 20%,#ff2e63 90%);
+<body>
+    <?php include 'header.php' ?>
+    <h1>Login to DigiMart</h1>
+    <div class="form">
+    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post">
     
-}
-.headimg{margin-left: 20px;
-margin-top: 10px;}
-        div{padding: 5%;}
-    </style>
-    </head>
+    <label class="label" for="email">Enter your email:</label>
+    <label class="label-error" style="<?php if(isset($_POST['login'])){ if($result->num_rows<1){echo 'display:block';} }?>">Incorrect E-Mail</label>
+    <div class="<?php echo $style[0] ?>">
+    <img class="mail" src="img/mail.svg">
+    <input type="email" class="<?php echo $style[1] ?>" id="email" name="email" placeholder="E-Mail" value="<?php echo $mailvalue ?>" required>
+    </div>
 
-    <body>
-        <header>
-            <img class="headimg" src="img/g23.png" height="40px"></header><br><br>
-        <h1>Login to DigiMart</h1>
-        <form action="" method="post">
-            <div>
-            <label class="inside" for="userid">Enter email or phone number <input class="inside" type="text" id="userid" required></label>
-            <label class="inside"  for="pass">Enter your password <input class="inside" type="password" id="pass"></label>
-            <a  class="inside" href="">Forgot password?</a><br><br>
-            <button class="inside" type="submit">Submit</button> </div>
-        </form>
-       
-       <div class="footer"> <footer>New to DigiMart? <a href="Untitled-1.html">Sign Up here!</a></footer></div>
-    </body>
+    <label class="label"  for="pass">Enter your password:</label>
+    <label class="label-error" style="<?php if($check_pwd===false){echo 'display:block';} ?>">Incorrect Password</label>
+    <div class="<?php echo $style[2] ?>">
+    <img class="pwd" src="img/lock.svg">
+    <input class="<?php echo $style[3] ?>" type="password" value="<?php echo $pwdvalue ?>" name="pass" placeholder="Password" id="pass" required>
+    </div>
+    <button class="btn" name="login" type="submit">Log In</button>
+    <a  class="fp" href="forgotpwd.php">Forgot password?</a>
+    </form>
+    </div>
+   
+    <div class="footer">
+        <footer>New to DigiMart? <a href="signup.php">Sign Up here!</a></footer>
+    </div>
+</body>
 </html>
