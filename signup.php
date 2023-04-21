@@ -1,1692 +1,552 @@
+<?php
+include 'dbconnect.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+require 'vendor/autoload.php';
+
+$msg = 0;
+$style = array("inside","input","inside-no","input-no","inside","input");
+$fname_value = "";
+$lname_value = "";
+$mail_value = "";
+$pwd_value = "";
+$pwd2_value = "";
+$addr_value = "";
+$full_phone = "";
+function test_input($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
+if(isset($_POST['signup'])){
+    $fname_value = test_input($_POST['first_name']);
+    $lname_value = test_input($_POST['last_name']);
+    $mail_value = test_input($_POST['email']);
+    $addr_value = test_input($_POST['address']);
+    $full_phone = test_input($_POST['full_number']);
+    $pwd_value = test_input($_POST['pass']);
+    $pwd2_value = test_input($_POST['pass2']);
+    $country = test_input($_POST['country']);
+
+    $sql1 = "SELECT * from user_details WHERE email = '$mail_value'";
+    $sql2 = "SELECT * from user_details WHERE phone = '$full_phone'";
+    $result1 = $con->query($sql1);
+    $result2 = $con->query($sql2);
+    if(($result1->num_rows>0) && ($result2->num_rows>0)){
+      $style[0] = "inside-error";
+      $style[1] = "input-error";
+      $style[2] = "inside-no-error";
+      $style[3] = "input-no-error";
+    }
+    else if($result1->num_rows>0){
+      $style[0] = "inside-error";
+      $style[1] = "input-error";
+    }
+    else if($result2->num_rows>0){
+      $style[2] = "inside-no-error";
+      $style[3] = "input-no-error";
+    }
+    if($pwd2_value!==$pwd_value){
+      $style[4] = "inside-error";
+      $style[5] = "input-error";
+    }
+    if(($result1->num_rows<1) && ($result2->num_rows<1) && ($pwd2_value===$pwd_value)){
+      $pwd_value = password_hash($pwd_value, PASSWORD_DEFAULT);
+      $evkey = md5('2418*2'.$mail_value);
+      $addKey = substr(md5(uniqid(rand(),1)),3,10);
+      $evkey = $evkey . $addKey;
+      $expFormat = mktime(date("H"),date("i"),date("s"),date("m"),date("d")+1,date("Y"));
+      $exp_time = date("Y-m-d H:i:s",$expFormat);
+
+      $sql3 = "INSERT INTO temp_users(fname,lname,email,address,country,phone,pwd,evkey,exp_time) VALUES('$fname_value','$lname_value','$mail_value','$addr_value','$country','$full_phone','$pwd_value','$evkey','$exp_time')";
+      $result3 = $con->query($sql3);
+      if($result3){
+        $name = "$fname_value $lname_value";
+        $mail = new PHPMailer(true);
+        try{
+          $mail->SMTPOptions = array(
+          'ssl' => array(
+          'verify_peer' => false,
+          'verify_peer_name' => false,
+          'allow_self_signed' => true
+          )
+          );
+          $mail->CharSet = "UTF-8";
+          $mail->Encoding = "base64";
+          $mail->isSMTP();
+          $mail->Host = "smtp.hostinger.in";
+          $mail->SMTPAuth = true;
+          $mail->Username = "noreply@comerazi.in";
+          $mail->Password = "@Uagimmick9211";
+          $mail->Port = 587;
+          $mail->SMTPSecure = "tls";
+          $mail->setFrom("noreply@comerazi.in","DigiMart");
+          $mail->addAddress("$mail_value");
+          $mail->isHtml(true);
+          $mail->Subject = "E-Mail Verification";
+          $mail->AddEmbeddedImage('img/Img1_2x.jpg', 'mailimg', 'Img1_2x.jpg');
+          $mail->AddEmbeddedImage('img/bee.png', 'bee', 'bee.png');
+          $mail->Body = "<!DOCTYPE html>
+
+<html lang='en' xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:v='urn:schemas-microsoft-com:vml'>
+<head>
+<title></title>
+<meta content='text/html; charset=utf-8' http-equiv='Content-Type'/>
+<meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]-->
+<style>
+      * {
+         box-sizing: border-box;
+      }
+
+      body {
+         margin: 0;
+         padding: 0;
+      }
+
+      a[x-apple-data-detectors] {
+         color: inherit !important;
+         text-decoration: inherit !important;
+      }
+
+      #MessageViewBody a {
+         color: inherit;
+         text-decoration: none;
+      }
+
+      p {
+         line-height: inherit
+      }
+
+      .desktop_hide,
+      .desktop_hide table {
+         mso-hide: all;
+         display: none;
+         max-height: 0px;
+         overflow: hidden;
+      }
+
+      @media (max-width:660px) {
+         .desktop_hide table.icons-inner {
+            display: inline-block !important;
+         }
+
+         .icons-inner {
+            text-align: center;
+         }
+
+         .icons-inner td {
+            margin: 0 auto;
+         }
+
+         .image_block img.big,
+         .row-content {
+            width: 100% !important;
+         }
+
+         .mobile_hide {
+            display: none;
+         }
+
+         .stack .column {
+            width: 100%;
+            display: block;
+         }
+
+         .mobile_hide {
+            min-height: 0;
+            max-height: 0;
+            max-width: 0;
+            overflow: hidden;
+            font-size: 0px;
+         }
+
+         .desktop_hide,
+         .desktop_hide table {
+            display: table !important;
+            max-height: none !important;
+         }
+      }
+   </style>
+</head>
+<body style='margin: 0; background-color: #f8f8f9; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;'>
+<table border='0' cellpadding='0' cellspacing='0' class='nl-container' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f8f8f9;' width='100%'>
+<tbody>
+<tr>
+<td>
+<table align='center' border='0' cellpadding='0' cellspacing='0' class='row row-1' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tbody>
+<tr>
+<td>
+<table align='center' border='0' cellpadding='0' cellspacing='0' class='row-content stack' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f8f8f9; color: #000000; width: 640px;' width='640'>
+<tbody>
+<tr>
+<td class='column column-1' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;' width='100%'>
+<table border='0' cellpadding='20' cellspacing='0' class='divider_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td>
+<div align='center'>
+<table border='0' cellpadding='0' cellspacing='0' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td class='divider_inner' style='font-size: 1px; line-height: 1px; border-top: 0px solid #BBBBBB;'><span> </span></td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<table align='center' border='0' cellpadding='0' cellspacing='0' class='row row-2' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tbody>
+<tr>
+<td>
+<table align='center' border='0' cellpadding='0' cellspacing='0' class='row-content stack' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #1aa19c; color: #000000; width: 640px;' width='640'>
+<tbody>
+<tr>
+<td class='column column-1' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 0px; padding-bottom: 0px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;' width='100%'>
+<table border='0' cellpadding='0' cellspacing='0' class='divider_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td>
+<div align='center'>
+<table border='0' cellpadding='0' cellspacing='0' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td class='divider_inner' style='font-size: 1px; line-height: 1px; border-top: 4px solid #1AA19C;'><span> </span></td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<table align='center' border='0' cellpadding='0' cellspacing='0' class='row row-3' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tbody>
+<tr>
+<td>
+<table align='center' border='0' cellpadding='0' cellspacing='0' class='row-content stack' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #fff; color: #000000; width: 640px;' width='640'>
+<tbody>
+<tr>
+<td class='column column-1' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 0px; padding-bottom: 0px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;' width='100%'>
+<table border='0' cellpadding='0' cellspacing='0' class='divider_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td style='padding-bottom:12px;padding-top:60px;'>
+<div align='center'>
+<table border='0' cellpadding='0' cellspacing='0' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td class='divider_inner' style='font-size: 1px; line-height: 1px; border-top: 0px solid #BBBBBB;'><span> </span></td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+<table border='0' cellpadding='0' cellspacing='0' class='image_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td style='padding-left:40px;padding-right:40px;width:100%;'>
+<div align='center' style='line-height:10px'><img class='big' src='cid:mailimg' style='display: block; height: auto; border: 0; width: 352px; max-width: 100%;' width='352'/></div>
+</td>
+</tr>
+</table>
+<table border='0' cellpadding='0' cellspacing='0' class='divider_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td style='padding-top:50px;'>
+<div align='center'>
+<table border='0' cellpadding='0' cellspacing='0' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td class='divider_inner' style='font-size: 1px; line-height: 1px; border-top: 0px solid #BBBBBB;'><span> </span></td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+<table border='0' cellpadding='0' cellspacing='0' class='text_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;' width='100%'>
+<tr>
+<td style='padding-bottom:10px;padding-left:40px;padding-right:40px;padding-top:10px;'>
+<div style='font-family: sans-serif'>
+<div class='txtTinyMce-wrapper' style='font-size: 12px; mso-line-height-alt: 14.399999999999999px; color: #555555; line-height: 1.2; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;'>
+<p style='margin: 0; font-size: 16px; text-align: center;'><span style='font-size:30px;color:#2b303a;'><strong>Verify Your E-Mail Account</strong></span></p>
+</div>
+</div>
+</td>
+</tr>
+</table>
+<table border='0' cellpadding='0' cellspacing='0' class='text_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;' width='100%'>
+<tr>
+<td style='padding-bottom:10px;padding-left:40px;padding-right:40px;padding-top:10px;'>
+<div style='font-family: sans-serif'>
+<div class='txtTinyMce-wrapper' style='font-size: 12px; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif; mso-line-height-alt: 18px; color: #555555; line-height: 1.5;'>
+<p style='margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 22.5px;'><span style='color:#808389;font-size:15px;'><strong>Dear ".$name.", click on the button given below to verify your E-Mail account.<br/><br/>Thanks.</strong></span></p>
+</div>
+</div>
+</td>
+</tr>
+</table>
+<table border='0' cellpadding='0' cellspacing='0' class='button_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td style='padding-left:10px;padding-right:10px;padding-top:15px;text-align:center;'>
+<div align='center'>
+<!--[if mso]><v:roundrect xmlns:v='urn:schemas-microsoft-com:vml' xmlns:w='urn:schemas-microsoft-com:office:word' style='height:62px;width:203px;v-text-anchor:middle;' arcsize='97%' stroke='false' fillcolor='#1aa19c'><w:anchorlock/><v:textbox inset='0px,0px,0px,0px'><center style='color:#ffffff; font-family:Tahoma, sans-serif; font-size:16px'><![endif]-->
+<a href='http://localhost/e-com.project-main/mailverify.php?evkey=".$evkey."&email=".$mail_value."' target='_blank'>
+<div style='text-decoration:none;display:inline-block;color:#ffffff;background-color:#1aa19c;border-radius:60px;width:auto;border-top:1px solid #1aa19c;font-weight:undefined;border-right:1px solid #1aa19c;border-bottom:1px solid #1aa19c;border-left:1px solid #1aa19c;padding-top:15px;padding-bottom:15px;font-family:Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;text-align:center;mso-border-alt:none;word-break:keep-all;'><span style='padding-left:30px;padding-right:30px;font-size:16px;display:inline-block;letter-spacing:normal;'><span style='font-size: 16px; margin: 0; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;'><strong>Confirm Your E-Mail</strong></span></span></div></a>
+<!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
+</div>
+</td>
+</tr>
+</table>
+<table border='0' cellpadding='0' cellspacing='0' class='divider_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td style='padding-bottom:12px;padding-top:60px;'>
+<div align='center'>
+<table border='0' cellpadding='0' cellspacing='0' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td class='divider_inner' style='font-size: 1px; line-height: 1px; border-top: 0px solid #BBBBBB;'><span> </span></td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+<table border='0' cellpadding='0' cellspacing='0' class='divider_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td>
+<div align='center'>
+<table border='0' cellpadding='0' cellspacing='0' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td class='divider_inner' style='font-size: 1px; line-height: 1px; border-top: 4px solid #1AA19C;'><span> </span></td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<table align='center' border='0' cellpadding='0' cellspacing='0' class='row row-4' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tbody>
+<tr>
+<td>
+<table align='center' border='0' cellpadding='0' cellspacing='0' class='row-content stack' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #000000; width: 640px;' width='640'>
+<tbody>
+<tr>
+<td class='column column-1' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 5px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;' width='100%'>
+<table border='0' cellpadding='0' cellspacing='0' class='icons_block' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td style='vertical-align: middle; padding-bottom: 5px; padding-top: 5px; color: #9d9d9d; font-family: inherit; font-size: 15px; text-align: center;'>
+<table cellpadding='0' cellspacing='0' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt;' width='100%'>
+<tr>
+<td style='vertical-align: middle; text-align: center;'>
+<!--[if vml]><table align='left' cellpadding='0' cellspacing='0' role='presentation' style='display:inline-block;padding-left:0px;padding-right:0px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;'><![endif]-->
+<!--[if !vml]><!-->
+<table cellpadding='0' cellspacing='0' class='icons-inner' role='presentation' style='mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px;'>
+<!--<![endif]-->
+<tr>
+<td style='vertical-align: middle; text-align: center; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 6px;'><a href='https://www.designedwithbee.com/' style='text-decoration: none;' target='_blank'><img align='center' class='icon' height='32' src='cid:bee' style='display: block; height: auto; margin: 0 auto; border: 0;' width='34'/></a></td>
+<td style='font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif; font-size: 15px; color: #9d9d9d; vertical-align: middle; letter-spacing: undefined; text-align: center;'><a href='https://www.designedwithbee.com/' style='color: #9d9d9d; text-decoration: none;' target='_blank'>Designed with BEE</a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table><!-- End -->
+</body>
+</html>";
+          $mail->AltBody = "Dear ".$name.", Verify your E-Mail by going to the following address: http://localhost/e-com.project-main/mailverify.php?evkey=".$evkey."&email=".$mail_value;
+
+          $mail->send();
+          $msg = 1;
+        } catch(Exception $e){
+            $msg = 2;
+        }
+      }
+      else{
+      header("location: signup.php");
+      }
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DigiMart</title>
-    <meta charset="UTF-8" />
-    <link rel="shortcut icon" href="img/favicon.svg" type="image/x-icon">
-    
-    <style>
-        body
-        {background:linear-gradient(45deg,white ,rgb(206, 129, 142));
-            font-weight: 625;
-            color: black;
-            background-repeat: no-repeat;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        form
-        {width: 60%;
-        margin: 20px auto 0;
-        max-width: 400px;
-        min-width: 300px;}
-        
-        label
-        {display: block;
-            width: 100%;
-            font-size: 17px;
-        }
-
-        input
-        {width: 100%;
-        background-color: rgb(206, 129, 142);
-        
-        border: none;
-        height: 20px;}
-        textarea{background-color:rgb(206, 129, 142);
-            width: 100%
-        };
-        
-        h1,h4
-        {text-align: center;
-        }
-        
-        header
-        {background-color: rgb(206, 129, 142);
-        position: fixed;
-        width: 100%;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 50px;
-        display: block;}
-        h1,h3{text-align: center;
-        font-size: 200%;}
-        footer
-        {
-        margin: 40px  ;
-        margin-left: 45%;
-        }
-        
-        button
-        {background-color: rgb(206,129,142);
-        border: 1px solid rgb(206, 129, 142);
-        height: 24px;
-        font-weight: 600;}
-        
-        #number
-        {width: 75%; }
-        
-        select
-        {max-width: 20%;margin-right: 4%;
-        background-color: rgb(206, 129, 142);border: 1px solid rgb(206, 129, 142);
-        height: 20px;}
-        
-        #term{
-        max-width: 10%;
-        background-color: rgb(206, 129, 142);
-        }
-        fieldset{width: 50%;
-        margin: 0 AUTO;
-        max-width: 750px;
-        border: 2px solid rgb(206, 129, 142);}
-        
-        
-    </style>
+  <title>Sign Up - DigiMart</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="initial-scale=1.0,width=device-width">
+  <link rel="shortcut icon" href="img/favicon.svg" type="image/x-icon">
+  <link rel="stylesheet" href="css/signupStyle.css" type="text/css">
+  <link rel="stylesheet" href="tel/build/css/intlTelInput.css">
 </head>
 <body >
-<header>
-<img src="img/g23.png" height="40px"></header><br><br>
-
-
-<h3>Please fill out the following details</h4>
-<fieldset><legend><h1>SIGN UP!</h1></legend>
-    <form action="" method="post">
-        <label for="fname">First Name<input type="text" name="first name" id="fname" required></label>
-        <label for="lname">Last Name<input type="text" name="last name" id="lname" required></label>
-        <label for="email">Email id<input type="email" name="email" id="email" required></label>
-        <label for="address">Address <br><textarea name="address" id="address" cols="48" rows="10" required></textarea></label>
-        <label for="number">Mobile Number <br>
-            <select name="countryCode" autocomplete="off" data-a-touch-header="Country/Region Code" id="auth-country-picker" tabindex="0" data-action="a-dropdown-select" class="a-native-dropdown a-declarative">
-  
-    
-    
-                <option data-calling-code="93" data-country-code="AF" value="AF" data-a-html-content="Afghanistan +93">
-                  
-                  AF +93
-                </option>
-              
-                
-                
-                <option data-calling-code="355" data-country-code="AL" value="AL" data-a-html-content="Albania +355">
-                  
-                  AL +355
-                </option>
-              
-                
-                
-                <option data-calling-code="213" data-country-code="DZ" value="DZ" data-a-html-content="Algeria +213">
-                  
-                  DZ +213
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="AS" value="AS" data-a-html-content="American Samoa +1">
-                  
-                  AS +1
-                </option>
-              
-                
-                
-                <option data-calling-code="376" data-country-code="AD" value="AD" data-a-html-content="Andorra +376">
-                  
-                  AD +376
-                </option>
-              
-                
-                
-                <option data-calling-code="244" data-country-code="AO" value="AO" data-a-html-content="Angola +244">
-                  
-                  AO +244
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="AG" value="AG" data-a-html-content="Antigua &amp; Barbuda +1">
-                  
-                  AG +1
-                </option>
-              
-                
-                
-                <option data-calling-code="54" data-country-code="AR" value="AR" data-a-html-content="Argentina +54">
-                  
-                  AR +54
-                </option>
-              
-                
-                
-                <option data-calling-code="374" data-country-code="AM" value="AM" data-a-html-content="Armenia +374">
-                  
-                  AM +374
-                </option>
-              
-                
-                
-                <option data-calling-code="297" data-country-code="AW" value="AW" data-a-html-content="Aruba +297">
-                  
-                  AW +297
-                </option>
-              
-                
-                
-                <option data-calling-code="61" data-country-code="AU" value="AU" data-a-html-content="Australia +61">
-                  
-                  AU +61
-                </option>
-              
-                
-                
-                <option data-calling-code="43" data-country-code="AT" value="AT" data-a-html-content="Austria +43">
-                  
-                  AT +43
-                </option>
-              
-                
-                
-                <option data-calling-code="994" data-country-code="AZ" value="AZ" data-a-html-content="Azerbaijan +994">
-                  
-                  AZ +994
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="BS" value="BS" data-a-html-content="Bahamas +1">
-                  
-                  BS +1
-                </option>
-              
-                
-                
-                <option data-calling-code="973" data-country-code="BH" value="BH" data-a-html-content="Bahrain +973">
-                  
-                  BH +973
-                </option>
-              
-                
-                
-                <option data-calling-code="880" data-country-code="BD" value="BD" data-a-html-content="Bangladesh +880">
-                  
-                  BD +880
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="BB" value="BB" data-a-html-content="Barbados +1">
-                  
-                  BB +1
-                </option>
-              
-                
-                
-                <option data-calling-code="375" data-country-code="BY" value="BY" data-a-html-content="Belarus +375">
-                  
-                  BY +375
-                </option>
-              
-                
-                
-                <option data-calling-code="32" data-country-code="BE" value="BE" data-a-html-content="Belgium +32">
-                  
-                  BE +32
-                </option>
-              
-                
-                
-                <option data-calling-code="501" data-country-code="BZ" value="BZ" data-a-html-content="Belize +501">
-                  
-                  BZ +501
-                </option>
-              
-                
-                
-                <option data-calling-code="229" data-country-code="BJ" value="BJ" data-a-html-content="Benin +229">
-                  
-                  BJ +229
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="BM" value="BM" data-a-html-content="Bermuda +1">
-                  
-                  BM +1
-                </option>
-              
-                
-                
-                <option data-calling-code="975" data-country-code="BT" value="BT" data-a-html-content="Bhutan +975">
-                  
-                  BT +975
-                </option>
-              
-                
-                
-                <option data-calling-code="591" data-country-code="BO" value="BO" data-a-html-content="Bolivia +591">
-                  
-                  BO +591
-                </option>
-              
-                
-                
-                <option data-calling-code="387" data-country-code="BA" value="BA" data-a-html-content="Bosnia &amp; Herzegovina +387">
-                  
-                  BA +387
-                </option>
-              
-                
-                
-                <option data-calling-code="267" data-country-code="BW" value="BW" data-a-html-content="Botswana +267">
-                  
-                  BW +267
-                </option>
-              
-                
-                
-                <option data-calling-code="55" data-country-code="BR" value="BR" data-a-html-content="Brazil +55">
-                  
-                  BR +55
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="VG" value="VG" data-a-html-content="British Virgin Islands +1">
-                  
-                  VG +1
-                </option>
-              
-                
-                
-                <option data-calling-code="673" data-country-code="BN" value="BN" data-a-html-content="Brunei +673">
-                  
-                  BN +673
-                </option>
-              
-                
-                
-                <option data-calling-code="359" data-country-code="BG" value="BG" data-a-html-content="Bulgaria +359">
-                  
-                  BG +359
-                </option>
-              
-                
-                
-                <option data-calling-code="226" data-country-code="BF" value="BF" data-a-html-content="Burkina Faso +226">
-                  
-                  BF +226
-                </option>
-              
-                
-                
-                <option data-calling-code="257" data-country-code="BI" value="BI" data-a-html-content="Burundi +257">
-                  
-                  BI +257
-                </option>
-              
-                
-                
-                <option data-calling-code="855" data-country-code="KH" value="KH" data-a-html-content="Cambodia +855">
-                  
-                  KH +855
-                </option>
-              
-                
-                
-                <option data-calling-code="237" data-country-code="CM" value="CM" data-a-html-content="Cameroon +237">
-                  
-                  CM +237
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="CA" value="CA" data-a-html-content="Canada +1">
-                  
-                  CA +1
-                </option>
-              
-                
-                
-                <option data-calling-code="238" data-country-code="CV" value="CV" data-a-html-content="Cape Verde +238">
-                  
-                  CV +238
-                </option>
-              
-                
-                
-                <option data-calling-code="599" data-country-code="BQ" value="BQ" data-a-html-content="Caribbean Netherlands +599">
-                  
-                  BQ +599
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="KY" value="KY" data-a-html-content="Cayman Islands +1">
-                  
-                  KY +1
-                </option>
-              
-                
-                
-                <option data-calling-code="236" data-country-code="CF" value="CF" data-a-html-content="Central African Republic +236">
-                  
-                  CF +236
-                </option>
-              
-                
-                
-                <option data-calling-code="235" data-country-code="TD" value="TD" data-a-html-content="Chad +235">
-                  
-                  TD +235
-                </option>
-              
-                
-                
-                <option data-calling-code="56" data-country-code="CL" value="CL" data-a-html-content="Chile +56">
-                  
-                  CL +56
-                </option>
-              
-                
-                
-                <option data-calling-code="86" data-country-code="CN" value="CN" data-a-html-content="China +86">
-                  
-                  CN +86
-                </option>
-              
-                
-                
-                <option data-calling-code="57" data-country-code="CO" value="CO" data-a-html-content="Colombia +57">
-                  
-                  CO +57
-                </option>
-              
-                
-                
-                <option data-calling-code="269" data-country-code="KM" value="KM" data-a-html-content="Comoros +269">
-                  
-                  KM +269
-                </option>
-              
-                
-                
-                <option data-calling-code="242" data-country-code="CG" value="CG" data-a-html-content="Congo - Brazzaville +242">
-                  
-                  CG +242
-                </option>
-              
-                
-                
-                <option data-calling-code="243" data-country-code="CD" value="CD" data-a-html-content="Congo - Kinshasa +243">
-                  
-                  CD +243
-                </option>
-              
-                
-                
-                <option data-calling-code="682" data-country-code="CK" value="CK" data-a-html-content="Cook Islands +682">
-                  
-                  CK +682
-                </option>
-              
-                
-                
-                <option data-calling-code="506" data-country-code="CR" value="CR" data-a-html-content="Costa Rica +506">
-                  
-                  CR +506
-                </option>
-              
-                
-                
-                <option data-calling-code="385" data-country-code="HR" value="HR" data-a-html-content="Croatia +385">
-                  
-                  HR +385
-                </option>
-              
-                
-                
-                <option data-calling-code="53" data-country-code="CU" value="CU" data-a-html-content="Cuba +53">
-                  
-                  CU +53
-                </option>
-              
-                
-                
-                <option data-calling-code="599" data-country-code="CW" value="CW" data-a-html-content="Curaçao +599">
-                  
-                  CW +599
-                </option>
-              
-                
-                
-                <option data-calling-code="357" data-country-code="CY" value="CY" data-a-html-content="Cyprus +357">
-                  
-                  CY +357
-                </option>
-              
-                
-                
-                <option data-calling-code="420" data-country-code="CZ" value="CZ" data-a-html-content="Czech Republic +420">
-                  
-                  CZ +420
-                </option>
-              
-                
-                
-                <option data-calling-code="225" data-country-code="CI" value="CI" data-a-html-content="Côte d’Ivoire +225">
-                  
-                  CI +225
-                </option>
-              
-                
-                
-                <option data-calling-code="45" data-country-code="DK" value="DK" data-a-html-content="Denmark +45">
-                  
-                  DK +45
-                </option>
-              
-                
-                
-                <option data-calling-code="253" data-country-code="DJ" value="DJ" data-a-html-content="Djibouti +253">
-                  
-                  DJ +253
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="DM" value="DM" data-a-html-content="Dominica +1">
-                  
-                  DM +1
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="DO" value="DO" data-a-html-content="Dominican Republic +1">
-                  
-                  DO +1
-                </option>
-              
-                
-                
-                <option data-calling-code="593" data-country-code="EC" value="EC" data-a-html-content="Ecuador +593">
-                  
-                  EC +593
-                </option>
-              
-                
-                
-                <option data-calling-code="20" data-country-code="EG" value="EG" data-a-html-content="Egypt +20">
-                  
-                  EG +20
-                </option>
-              
-                
-                
-                <option data-calling-code="503" data-country-code="SV" value="SV" data-a-html-content="El Salvador +503">
-                  
-                  SV +503
-                </option>
-              
-                
-                
-                <option data-calling-code="240" data-country-code="GQ" value="GQ" data-a-html-content="Equatorial Guinea +240">
-                  
-                  GQ +240
-                </option>
-              
-                
-                
-                <option data-calling-code="291" data-country-code="ER" value="ER" data-a-html-content="Eritrea +291">
-                  
-                  ER +291
-                </option>
-              
-                
-                
-                <option data-calling-code="372" data-country-code="EE" value="EE" data-a-html-content="Estonia +372">
-                  
-                  EE +372
-                </option>
-              
-                
-                
-                <option data-calling-code="251" data-country-code="ET" value="ET" data-a-html-content="Ethiopia +251">
-                  
-                  ET +251
-                </option>
-              
-                
-                
-                <option data-calling-code="500" data-country-code="FK" value="FK" data-a-html-content="Falkland Islands +500">
-                  
-                  FK +500
-                </option>
-              
-                
-                
-                <option data-calling-code="298" data-country-code="FO" value="FO" data-a-html-content="Faroe Islands +298">
-                  
-                  FO +298
-                </option>
-              
-                
-                
-                <option data-calling-code="679" data-country-code="FJ" value="FJ" data-a-html-content="Fiji +679">
-                  
-                  FJ +679
-                </option>
-              
-                
-                
-                <option data-calling-code="358" data-country-code="FI" value="FI" data-a-html-content="Finland +358">
-                  
-                  FI +358
-                </option>
-              
-                
-                
-                <option data-calling-code="33" data-country-code="FR" value="FR" data-a-html-content="France +33">
-                  
-                  FR +33
-                </option>
-              
-                
-                
-                <option data-calling-code="594" data-country-code="GF" value="GF" data-a-html-content="French Guiana +594">
-                  
-                  GF +594
-                </option>
-              
-                
-                
-                <option data-calling-code="689" data-country-code="PF" value="PF" data-a-html-content="French Polynesia +689">
-                  
-                  PF +689
-                </option>
-              
-                
-                
-                <option data-calling-code="241" data-country-code="GA" value="GA" data-a-html-content="Gabon +241">
-                  
-                  GA +241
-                </option>
-              
-                
-                
-                <option data-calling-code="220" data-country-code="GM" value="GM" data-a-html-content="Gambia +220">
-                  
-                  GM +220
-                </option>
-              
-                
-                
-                <option data-calling-code="995" data-country-code="GE" value="GE" data-a-html-content="Georgia +995">
-                  
-                  GE +995
-                </option>
-              
-                
-                
-                <option data-calling-code="49" data-country-code="DE" value="DE" data-a-html-content="Germany +49">
-                  
-                  DE +49
-                </option>
-              
-                
-                
-                <option data-calling-code="233" data-country-code="GH" value="GH" data-a-html-content="Ghana +233">
-                  
-                  GH +233
-                </option>
-              
-                
-                
-                <option data-calling-code="350" data-country-code="GI" value="GI" data-a-html-content="Gibraltar +350">
-                  
-                  GI +350
-                </option>
-              
-                
-                
-                <option data-calling-code="30" data-country-code="GR" value="GR" data-a-html-content="Greece +30">
-                  
-                  GR +30
-                </option>
-              
-                
-                
-                <option data-calling-code="299" data-country-code="GL" value="GL" data-a-html-content="Greenland +299">
-                  
-                  GL +299
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="GD" value="GD" data-a-html-content="Grenada +1">
-                  
-                  GD +1
-                </option>
-              
-                
-                
-                <option data-calling-code="590" data-country-code="GP" value="GP" data-a-html-content="Guadeloupe +590">
-                  
-                  GP +590
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="GU" value="GU" data-a-html-content="Guam +1">
-                  
-                  GU +1
-                </option>
-              
-                
-                
-                <option data-calling-code="502" data-country-code="GT" value="GT" data-a-html-content="Guatemala +502">
-                  
-                  GT +502
-                </option>
-              
-                
-                
-                <option data-calling-code="224" data-country-code="GN" value="GN" data-a-html-content="Guinea +224">
-                  
-                  GN +224
-                </option>
-              
-                
-                
-                <option data-calling-code="245" data-country-code="GW" value="GW" data-a-html-content="Guinea-Bissau +245">
-                  
-                  GW +245
-                </option>
-              
-                
-                
-                <option data-calling-code="592" data-country-code="GY" value="GY" data-a-html-content="Guyana +592">
-                  
-                  GY +592
-                </option>
-              
-                
-                
-                <option data-calling-code="509" data-country-code="HT" value="HT" data-a-html-content="Haiti +509">
-                  
-                  HT +509
-                </option>
-              
-                
-                
-                <option data-calling-code="504" data-country-code="HN" value="HN" data-a-html-content="Honduras +504">
-                  
-                  HN +504
-                </option>
-              
-                
-                
-                <option data-calling-code="852" data-country-code="HK" value="HK" data-a-html-content="Hong Kong +852">
-                  
-                  HK +852
-                </option>
-              
-                
-                
-                <option data-calling-code="36" data-country-code="HU" value="HU" data-a-html-content="Hungary +36">
-                  
-                  HU +36
-                </option>
-              
-                
-                
-                <option data-calling-code="354" data-country-code="IS" value="IS" data-a-html-content="Iceland +354">
-                  
-                  IS +354
-                </option>
-              
-                
-                
-                <option data-calling-code="91" data-country-code="IN" value="IN" data-a-html-content="India +91" selected>
-                  
-                  IN +91
-                </option>
-              
-                
-                
-                <option data-calling-code="62" data-country-code="ID" value="ID" data-a-html-content="Indonesia +62">
-                  
-                  ID +62
-                </option>
-              
-                
-                
-                <option data-calling-code="98" data-country-code="IR" value="IR" data-a-html-content="Iran +98">
-                  
-                  IR +98
-                </option>
-              
-                
-                
-                <option data-calling-code="964" data-country-code="IQ" value="IQ" data-a-html-content="Iraq +964">
-                  
-                  IQ +964
-                </option>
-              
-                
-                
-                <option data-calling-code="353" data-country-code="IE" value="IE" data-a-html-content="Ireland +353">
-                  
-                  IE +353
-                </option>
-              
-                
-                
-                <option data-calling-code="972" data-country-code="IL" value="IL" data-a-html-content="Israel +972">
-                  
-                  IL +972
-                </option>
-              
-                
-                
-                <option data-calling-code="39" data-country-code="IT" value="IT" data-a-html-content="Italy +39">
-                  
-                  IT +39
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="JM" value="JM" data-a-html-content="Jamaica +1">
-                  
-                  JM +1
-                </option>
-              
-                
-                
-                <option data-calling-code="81" data-country-code="JP" value="JP" data-a-html-content="Japan +81">
-                  
-                  JP +81
-                </option>
-              
-                
-                
-                <option data-calling-code="962" data-country-code="JO" value="JO" data-a-html-content="Jordan +962">
-                  
-                  JO +962
-                </option>
-              
-                
-                
-                <option data-calling-code="7" data-country-code="KZ" value="KZ" data-a-html-content="Kazakhstan +7">
-                  
-                  KZ +7
-                </option>
-              
-                
-                
-                <option data-calling-code="254" data-country-code="KE" value="KE" data-a-html-content="Kenya +254">
-                  
-                  KE +254
-                </option>
-              
-                
-                
-                <option data-calling-code="686" data-country-code="KI" value="KI" data-a-html-content="Kiribati +686">
-                  
-                  KI +686
-                </option>
-              
-                
-                
-                <option data-calling-code="383" data-country-code="XK" value="XK" data-a-html-content="Kosovo +383">
-                  
-                  XK +383
-                </option>
-              
-                
-                
-                <option data-calling-code="965" data-country-code="KW" value="KW" data-a-html-content="Kuwait +965">
-                  
-                  KW +965
-                </option>
-              
-                
-                
-                <option data-calling-code="996" data-country-code="KG" value="KG" data-a-html-content="Kyrgyzstan +996">
-                  
-                  KG +996
-                </option>
-              
-                
-                
-                <option data-calling-code="856" data-country-code="LA" value="LA" data-a-html-content="Laos +856">
-                  
-                  LA +856
-                </option>
-              
-                
-                
-                <option data-calling-code="371" data-country-code="LV" value="LV" data-a-html-content="Latvia +371">
-                  
-                  LV +371
-                </option>
-              
-                
-                
-                <option data-calling-code="961" data-country-code="LB" value="LB" data-a-html-content="Lebanon +961">
-                  
-                  LB +961
-                </option>
-              
-                
-                
-                <option data-calling-code="266" data-country-code="LS" value="LS" data-a-html-content="Lesotho +266">
-                  
-                  LS +266
-                </option>
-              
-                
-                
-                <option data-calling-code="231" data-country-code="LR" value="LR" data-a-html-content="Liberia +231">
-                  
-                  LR +231
-                </option>
-              
-                
-                
-                <option data-calling-code="218" data-country-code="LY" value="LY" data-a-html-content="Libya +218">
-                  
-                  LY +218
-                </option>
-              
-                
-                
-                <option data-calling-code="423" data-country-code="LI" value="LI" data-a-html-content="Liechtenstein +423">
-                  
-                  LI +423
-                </option>
-              
-                
-                
-                <option data-calling-code="370" data-country-code="LT" value="LT" data-a-html-content="Lithuania +370">
-                  
-                  LT +370
-                </option>
-              
-                
-                
-                <option data-calling-code="352" data-country-code="LU" value="LU" data-a-html-content="Luxembourg +352">
-                  
-                  LU +352
-                </option>
-              
-                
-                
-                <option data-calling-code="853" data-country-code="MO" value="MO" data-a-html-content="Macau +853">
-                  
-                  MO +853
-                </option>
-              
-                
-                
-                <option data-calling-code="389" data-country-code="MK" value="MK" data-a-html-content="Macedonia +389">
-                  
-                  MK +389
-                </option>
-              
-                
-                
-                <option data-calling-code="261" data-country-code="MG" value="MG" data-a-html-content="Madagascar +261">
-                  
-                  MG +261
-                </option>
-              
-                
-                
-                <option data-calling-code="265" data-country-code="MW" value="MW" data-a-html-content="Malawi +265">
-                  
-                  MW +265
-                </option>
-              
-                
-                
-                <option data-calling-code="60" data-country-code="MY" value="MY" data-a-html-content="Malaysia +60">
-                  
-                  MY +60
-                </option>
-              
-                
-                
-                <option data-calling-code="960" data-country-code="MV" value="MV" data-a-html-content="Maldives +960">
-                  
-                  MV +960
-                </option>
-              
-                
-                
-                <option data-calling-code="223" data-country-code="ML" value="ML" data-a-html-content="Mali +223">
-                  
-                  ML +223
-                </option>
-              
-                
-                
-                <option data-calling-code="356" data-country-code="MT" value="MT" data-a-html-content="Malta +356">
-                  
-                  MT +356
-                </option>
-              
-                
-                
-                <option data-calling-code="692" data-country-code="MH" value="MH" data-a-html-content="Marshall Islands +692">
-                  
-                  MH +692
-                </option>
-              
-                
-                
-                <option data-calling-code="596" data-country-code="MQ" value="MQ" data-a-html-content="Martinique +596">
-                  
-                  MQ +596
-                </option>
-              
-                
-                
-                <option data-calling-code="222" data-country-code="MR" value="MR" data-a-html-content="Mauritania +222">
-                  
-                  MR +222
-                </option>
-              
-                
-                
-                <option data-calling-code="230" data-country-code="MU" value="MU" data-a-html-content="Mauritius +230">
-                  
-                  MU +230
-                </option>
-              
-                
-                
-                <option data-calling-code="52" data-country-code="MX" value="MX" data-a-html-content="Mexico +52">
-                  
-                  MX +52
-                </option>
-              
-                
-                
-                <option data-calling-code="691" data-country-code="FM" value="FM" data-a-html-content="Micronesia +691">
-                  
-                  FM +691
-                </option>
-              
-                
-                
-                <option data-calling-code="373" data-country-code="MD" value="MD" data-a-html-content="Moldova +373">
-                  
-                  MD +373
-                </option>
-              
-                
-                
-                <option data-calling-code="377" data-country-code="MC" value="MC" data-a-html-content="Monaco +377">
-                  
-                  MC +377
-                </option>
-              
-                
-                
-                <option data-calling-code="976" data-country-code="MN" value="MN" data-a-html-content="Mongolia +976">
-                  
-                  MN +976
-                </option>
-              
-                
-                
-                <option data-calling-code="382" data-country-code="ME" value="ME" data-a-html-content="Montenegro +382">
-                  
-                  ME +382
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="MS" value="MS" data-a-html-content="Montserrat +1">
-                  
-                  MS +1
-                </option>
-              
-                
-                
-                <option data-calling-code="212" data-country-code="MA" value="MA" data-a-html-content="Morocco +212">
-                  
-                  MA +212
-                </option>
-              
-                
-                
-                <option data-calling-code="258" data-country-code="MZ" value="MZ" data-a-html-content="Mozambique +258">
-                  
-                  MZ +258
-                </option>
-              
-                
-                
-                <option data-calling-code="95" data-country-code="MM" value="MM" data-a-html-content="Myanmar (Burma) +95">
-                  
-                  MM +95
-                </option>
-              
-                
-                
-                <option data-calling-code="264" data-country-code="NA" value="NA" data-a-html-content="Namibia +264">
-                  
-                  NA +264
-                </option>
-              
-                
-                
-                <option data-calling-code="674" data-country-code="NR" value="NR" data-a-html-content="Nauru +674">
-                  
-                  NR +674
-                </option>
-              
-                
-                
-                <option data-calling-code="977" data-country-code="NP" value="NP" data-a-html-content="Nepal +977">
-                  
-                  NP +977
-                </option>
-              
-                
-                
-                <option data-calling-code="31" data-country-code="NL" value="NL" data-a-html-content="Netherlands +31">
-                  
-                  NL +31
-                </option>
-              
-                
-                
-                <option data-calling-code="687" data-country-code="NC" value="NC" data-a-html-content="New Caledonia +687">
-                  
-                  NC +687
-                </option>
-              
-                
-                
-                <option data-calling-code="64" data-country-code="NZ" value="NZ" data-a-html-content="New Zealand +64">
-                  
-                  NZ +64
-                </option>
-              
-                
-                
-                <option data-calling-code="505" data-country-code="NI" value="NI" data-a-html-content="Nicaragua +505">
-                  
-                  NI +505
-                </option>
-              
-                
-                
-                <option data-calling-code="227" data-country-code="NE" value="NE" data-a-html-content="Niger +227">
-                  
-                  NE +227
-                </option>
-              
-                
-                
-                <option data-calling-code="234" data-country-code="NG" value="NG" data-a-html-content="Nigeria +234">
-                  
-                  NG +234
-                </option>
-              
-                
-                
-                <option data-calling-code="683" data-country-code="NU" value="NU" data-a-html-content="Niue +683">
-                  
-                  NU +683
-                </option>
-              
-                
-                
-                <option data-calling-code="672" data-country-code="NF" value="NF" data-a-html-content="Norfolk Island +672">
-                  
-                  NF +672
-                </option>
-              
-                
-                
-                <option data-calling-code="850" data-country-code="KP" value="KP" data-a-html-content="North Korea +850">
-                  
-                  KP +850
-                </option>
-              
-                
-                
-                <option data-calling-code="47" data-country-code="NO" value="NO" data-a-html-content="Norway +47">
-                  
-                  NO +47
-                </option>
-              
-                
-                
-                <option data-calling-code="968" data-country-code="OM" value="OM" data-a-html-content="Oman +968">
-                  
-                  OM +968
-                </option>
-              
-                
-                
-                <option data-calling-code="92" data-country-code="PK" value="PK" data-a-html-content="Pakistan +92">
-                  
-                  PK +92
-                </option>
-              
-                
-                
-                <option data-calling-code="680" data-country-code="PW" value="PW" data-a-html-content="Palau +680">
-                  
-                  PW +680
-                </option>
-              
-                
-                
-                <option data-calling-code="970" data-country-code="PS" value="PS" data-a-html-content="Palestinian Territories +970">
-                  
-                  PS +970
-                </option>
-              
-                
-                
-                <option data-calling-code="507" data-country-code="PA" value="PA" data-a-html-content="Panama +507">
-                  
-                  PA +507
-                </option>
-              
-                
-                
-                <option data-calling-code="675" data-country-code="PG" value="PG" data-a-html-content="Papua New Guinea +675">
-                  
-                  PG +675
-                </option>
-              
-                
-                
-                <option data-calling-code="595" data-country-code="PY" value="PY" data-a-html-content="Paraguay +595">
-                  
-                  PY +595
-                </option>
-              
-                
-                
-                <option data-calling-code="51" data-country-code="PE" value="PE" data-a-html-content="Peru +51">
-                  
-                  PE +51
-                </option>
-              
-                
-                
-                <option data-calling-code="63" data-country-code="PH" value="PH" data-a-html-content="Philippines +63">
-                  
-                  PH +63
-                </option>
-              
-                
-                
-                <option data-calling-code="48" data-country-code="PL" value="PL" data-a-html-content="Poland +48">
-                  
-                  PL +48
-                </option>
-              
-                
-                
-                <option data-calling-code="351" data-country-code="PT" value="PT" data-a-html-content="Portugal +351">
-                  
-                  PT +351
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="PR" value="PR" data-a-html-content="Puerto Rico +1">
-                  
-                  PR +1
-                </option>
-              
-                
-                
-                <option data-calling-code="974" data-country-code="QA" value="QA" data-a-html-content="Qatar +974">
-                  
-                  QA +974
-                </option>
-              
-                
-                
-                <option data-calling-code="40" data-country-code="RO" value="RO" data-a-html-content="Romania +40">
-                  
-                  RO +40
-                </option>
-              
-                
-                
-                <option data-calling-code="7" data-country-code="RU" value="RU" data-a-html-content="Russia +7">
-                  
-                  RU +7
-                </option>
-              
-                
-                
-                <option data-calling-code="250" data-country-code="RW" value="RW" data-a-html-content="Rwanda +250">
-                  
-                  RW +250
-                </option>
-              
-                
-                
-                <option data-calling-code="262" data-country-code="RE" value="RE" data-a-html-content="Réunion +262">
-                  
-                  RE +262
-                </option>
-              
-                
-                
-                <option data-calling-code="685" data-country-code="WS" value="WS" data-a-html-content="Samoa +685">
-                  
-                  WS +685
-                </option>
-              
-                
-                
-                <option data-calling-code="378" data-country-code="SM" value="SM" data-a-html-content="San Marino +378">
-                  
-                  SM +378
-                </option>
-              
-                
-                
-                <option data-calling-code="966" data-country-code="SA" value="SA" data-a-html-content="Saudi Arabia +966">
-                  
-                  SA +966
-                </option>
-              
-                
-                
-                <option data-calling-code="221" data-country-code="SN" value="SN" data-a-html-content="Senegal +221">
-                  
-                  SN +221
-                </option>
-              
-                
-                
-                <option data-calling-code="381" data-country-code="RS" value="RS" data-a-html-content="Serbia +381">
-                  
-                  RS +381
-                </option>
-              
-                
-                
-                <option data-calling-code="248" data-country-code="SC" value="SC" data-a-html-content="Seychelles +248">
-                  
-                  SC +248
-                </option>
-              
-                
-                
-                <option data-calling-code="232" data-country-code="SL" value="SL" data-a-html-content="Sierra Leone +232">
-                  
-                  SL +232
-                </option>
-              
-                
-                
-                <option data-calling-code="65" data-country-code="SG" value="SG" data-a-html-content="Singapore +65">
-                  
-                  SG +65
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="SX" value="SX" data-a-html-content="Sint Maarten +1">
-                  
-                  SX +1
-                </option>
-              
-                
-                
-                <option data-calling-code="421" data-country-code="SK" value="SK" data-a-html-content="Slovakia +421">
-                  
-                  SK +421
-                </option>
-              
-                
-                
-                <option data-calling-code="386" data-country-code="SI" value="SI" data-a-html-content="Slovenia +386">
-                  
-                  SI +386
-                </option>
-              
-                
-                
-                <option data-calling-code="677" data-country-code="SB" value="SB" data-a-html-content="Solomon Islands +677">
-                  
-                  SB +677
-                </option>
-              
-                
-                
-                <option data-calling-code="252" data-country-code="SO" value="SO" data-a-html-content="Somalia +252">
-                  
-                  SO +252
-                </option>
-              
-                
-                
-                <option data-calling-code="27" data-country-code="ZA" value="ZA" data-a-html-content="South Africa +27">
-                  
-                  ZA +27
-                </option>
-              
-                
-                
-                <option data-calling-code="82" data-country-code="KR" value="KR" data-a-html-content="South Korea +82">
-                  
-                  KR +82
-                </option>
-              
-                
-                
-                <option data-calling-code="211" data-country-code="SS" value="SS" data-a-html-content="South Sudan +211">
-                  
-                  SS +211
-                </option>
-              
-                
-                
-                <option data-calling-code="34" data-country-code="ES" value="ES" data-a-html-content="Spain +34">
-                  
-                  ES +34
-                </option>
-              
-                
-                
-                <option data-calling-code="94" data-country-code="LK" value="LK" data-a-html-content="Sri Lanka +94">
-                  
-                  LK +94
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="KN" value="KN" data-a-html-content="St. Kitts &amp; Nevis +1">
-                  
-                  KN +1
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="LC" value="LC" data-a-html-content="St. Lucia +1">
-                  
-                  LC +1
-                </option>
-              
-                
-                
-                <option data-calling-code="508" data-country-code="PM" value="PM" data-a-html-content="St. Pierre &amp; Miquelon +508">
-                  
-                  PM +508
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="VC" value="VC" data-a-html-content="St. Vincent &amp; Grenadines +1">
-                  
-                  VC +1
-                </option>
-              
-                
-                
-                <option data-calling-code="249" data-country-code="SD" value="SD" data-a-html-content="Sudan +249">
-                  
-                  SD +249
-                </option>
-              
-                
-                
-                <option data-calling-code="597" data-country-code="SR" value="SR" data-a-html-content="Suriname +597">
-                  
-                  SR +597
-                </option>
-              
-                
-                
-                <option data-calling-code="268" data-country-code="SZ" value="SZ" data-a-html-content="Swaziland +268">
-                  
-                  SZ +268
-                </option>
-              
-                
-                
-                <option data-calling-code="46" data-country-code="SE" value="SE" data-a-html-content="Sweden +46">
-                  
-                  SE +46
-                </option>
-              
-                
-                
-                <option data-calling-code="41" data-country-code="CH" value="CH" data-a-html-content="Switzerland +41">
-                  
-                  CH +41
-                </option>
-              
-                
-                
-                <option data-calling-code="963" data-country-code="SY" value="SY" data-a-html-content="Syria +963">
-                  
-                  SY +963
-                </option>
-              
-                
-                
-                <option data-calling-code="239" data-country-code="ST" value="ST" data-a-html-content="São Tomé &amp; Príncipe +239">
-                  
-                  ST +239
-                </option>
-              
-                
-                
-                <option data-calling-code="886" data-country-code="TW" value="TW" data-a-html-content="Taiwan +886">
-                  
-                  TW +886
-                </option>
-              
-                
-                
-                <option data-calling-code="992" data-country-code="TJ" value="TJ" data-a-html-content="Tajikistan +992">
-                  
-                  TJ +992
-                </option>
-              
-                
-                
-                <option data-calling-code="255" data-country-code="TZ" value="TZ" data-a-html-content="Tanzania +255">
-                  
-                  TZ +255
-                </option>
-              
-                
-                
-                <option data-calling-code="66" data-country-code="TH" value="TH" data-a-html-content="Thailand +66">
-                  
-                  TH +66
-                </option>
-              
-                
-                
-                <option data-calling-code="670" data-country-code="TL" value="TL" data-a-html-content="Timor-Leste +670">
-                  
-                  TL +670
-                </option>
-              
-                
-                
-                <option data-calling-code="228" data-country-code="TG" value="TG" data-a-html-content="Togo +228">
-                  
-                  TG +228
-                </option>
-              
-                
-                
-                <option data-calling-code="676" data-country-code="TO" value="TO" data-a-html-content="Tonga +676">
-                  
-                  TO +676
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="TT" value="TT" data-a-html-content="Trinidad &amp; Tobago +1">
-                  
-                  TT +1
-                </option>
-              
-                
-                
-                <option data-calling-code="216" data-country-code="TN" value="TN" data-a-html-content="Tunisia +216">
-                  
-                  TN +216
-                </option>
-              
-                
-                
-                <option data-calling-code="90" data-country-code="TR" value="TR" data-a-html-content="Turkey +90">
-                  
-                  TR +90
-                </option>
-              
-                
-                
-                <option data-calling-code="993" data-country-code="TM" value="TM" data-a-html-content="Turkmenistan +993">
-                  
-                  TM +993
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="TC" value="TC" data-a-html-content="Turks &amp; Caicos Islands +1">
-                  
-                  TC +1
-                </option>
-              
-                
-                
-                <option data-calling-code="688" data-country-code="TV" value="TV" data-a-html-content="Tuvalu +688">
-                  
-                  TV +688
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="VI" value="VI" data-a-html-content="U.S. Virgin Islands +1">
-                  
-                  VI +1
-                </option>
-              
-                
-                
-                <option data-calling-code="256" data-country-code="UG" value="UG" data-a-html-content="Uganda +256">
-                  
-                  UG +256
-                </option>
-              
-                
-                
-                <option data-calling-code="380" data-country-code="UA" value="UA" data-a-html-content="Ukraine +380">
-                  
-                  UA +380
-                </option>
-              
-                
-                
-                <option data-calling-code="971" data-country-code="AE" value="AE" data-a-html-content="United Arab Emirates +971">
-                  
-                  AE +971
-                </option>
-              
-                
-                
-                <option data-calling-code="44" data-country-code="GB" value="GB" data-a-html-content="United Kingdom +44">
-                  
-                  GB +44
-                </option>
-              
-                
-                
-                <option data-calling-code="1" data-country-code="US" value="US" data-a-html-content="United States +1">
-                  
-                  US +1
-                </option>
-              
-                
-                
-                <option data-calling-code="598" data-country-code="UY" value="UY" data-a-html-content="Uruguay +598">
-                  
-                  UY +598
-                </option>
-              
-                
-                
-                <option data-calling-code="998" data-country-code="UZ" value="UZ" data-a-html-content="Uzbekistan +998">
-                  
-                  UZ +998
-                </option>
-              
-                
-                
-                <option data-calling-code="678" data-country-code="VU" value="VU" data-a-html-content="Vanuatu +678">
-                  
-                  VU +678
-                </option>
-              
-                
-                
-                <option data-calling-code="58" data-country-code="VE" value="VE" data-a-html-content="Venezuela +58">
-                  
-                  VE +58
-                </option>
-              
-                
-                
-                <option data-calling-code="84" data-country-code="VN" value="VN" data-a-html-content="Vietnam +84">
-                  
-                  VN +84
-                </option>
-              
-                
-                
-                <option data-calling-code="967" data-country-code="YE" value="YE" data-a-html-content="Yemen +967">
-                  
-                  YE +967
-                </option>
-              
-                
-                
-                <option data-calling-code="260" data-country-code="ZM" value="ZM" data-a-html-content="Zambia +260">
-                  
-                  ZM +260
-                </option>
-              
-                
-                
-                <option data-calling-code="263" data-country-code="ZW" value="ZW" data-a-html-content="Zimbabwe +263">
-                  
-                  ZW +263
-                </option>
-              
-                
-                
-                <option data-calling-code="358" data-country-code="AX" value="AX" data-a-html-content="Åland Islands +358">
-                  
-                  AX +358
-                </option> <input type="tel" name="" id="number">
-        </label>
-        <label for="fname">Password (Min. 8 characters)<input type="password" name="pass" id="pass" minlength="8" required></label><br>
-       <label for="term"> <input type="checkbox" id="term" required> I agree to Digimart's terms and conditions </label><br>
-        <button type="submit">Submit</button>
-        <button type="reset">Reset</button>
-    
-    </form>
-</fieldset>
-<footer>Already a customer? <a href="login.html">Login here!</a></footer>
+<?php
+include 'header.php';
+if($msg===1){
+?>
+<div class="msg-container">
+<div class="msg">
+Dear <?php echo $name ?>,<br>
+A verification link will be sent to your e-mail account: <?php echo $mail_value ?> shortly.<br>
+Follow that link to complete the registration process.<br>
+<i style="font-weight:normal;font-size:21px">(Link expires after 24 Hrs. of form submission)</i>
+</div>
+</div>
 </body>
+<?php }
+elseif($msg===2){
+?>
+<div class="msg-container">
+<div class="msg">
+Oops! Some error occured.<br>
+Try to <a href="signup.php">register again</a>.
+</div>
+</div>
+</body>
+<?php }
+else{
+?>
+<h1>SIGN UP!</h1>
+<div class="form">
+<div style="margin:8% 0">
+<form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post">
+    <label class="label" for="fname">First Name</label>
+    <div class="inside">
+    <img src="img/person.svg" class="ico">
+    <input class="input" type="text" name="first_name" id="fname" placeholder="First Name" value="<?php echo $fname_value ?>" required>
+    </div>
+    <label class="label" for="lname">Last Name *</label>
+    <div class="inside">
+    <img src="img/person.svg" class="ico">
+    <input class="input" type="text" name="last_name" id="lname" placeholder="Last Name" value="<?php echo $lname_value ?>">
+    </div>
+    <label class="label" for="email">Email id</label>
+    <label class="label-error" style="<?php if($result1->num_rows>0){echo 'display:block';} ?>">E-Mail already in use</label>
+    <div class="<?php echo $style[0] ?>">
+    <img src="img/mail.svg" class="ico">
+    <input class="<?php echo $style[1] ?>" type="email" name="email" id="email" placeholder="E-Mail" value="<?php echo $mail_value ?>" required>
+    </div>
+    <label class="label" for="address">Address</label>
+    <div class="inside-adr">
+    <img src="img/location.svg" class="ico-adr">
+    <textarea class="input-adr" name="address" id="address" placeholder="Address" required><?php echo $addr_value ?></textarea>
+    </div>
+    <label class="label" for="phone">Mobile Number</label>
+    <label class="label-error" id="label-error" style="<?php if($result2->num_rows>0){echo 'display:block';} ?>">Number already in use</label>
+    <div class="<?php echo $style[2] ?>" id="inside-no">
+    <img src="img/phone.svg" class="ico">
+    <input id="phone" name="phone" value="<?php echo $full_phone ?>" type="tel" class="<?php echo $style[3] ?>" required>
+    </div>
+    <label class="label" for="pass">Password (Min. 8 characters)</label>
+    <div class="inside">
+    <img src="img/lock.svg" class="ico">
+    <input class="input" type="password" value="<?php echo $pwd_value ?>" name="pass" id="pass" minlength="8" placeholder="Password" required>
+    </div>
+    <label class="label" for="pass2">Confirm Password</label>
+    <label class="label-error" for="pass2" style="<?php if($pwd_value!==$pwd2_value){echo 'display:block';} ?>">
+   Passwords do not match
+    </label>
+    <div class="<?php echo $style[4] ?>">
+    <img src="img/lock.svg" class="ico">
+    <input class="<?php echo $style[5] ?>" type="password" value="<?php echo $pwd2_value ?>" name="pass2" id="pass2" minlength="8" placeholder="Confirm Password" required>
+    </div>
+    <label class="label">* <i>- Optional Field</i></label>
+    <div class="label-term">
+    <input type="checkbox" class="checkbox" id="term" required><label for="term"> I agree to DigiMart's <a href="" target="_blank">Terms and Conditions </a></label>
+    </div>
+    <input type="text" name="country" id="country" value="in" hidden>
+    <button class="btn" id="signup" name="signup" type="submit">Sign Up</button>
+</form>
+</div>
+</div>
+<div class="footer">Already a customer? <a href="login.php">Login here!</a></div>
+</body>
+<script src="tel/build/js/intlTelInput.js"></script>
+<script>
+    var input = document.querySelector("#phone");
+    var iti = window.intlTelInput(input, {
+        allowDropdown: true,
+        geoIpLookup: function(callback) {
+          fetch("https://ipapi.co/json")
+           .then(function(res) { return res.json(); })
+           .then(function(data) { callback(data.country_code); })
+           .catch(function() { callback("in"); });
+        },
+        hiddenInput: "full_number",
+        initialCountry: "auto",
+        separateDialCode: true,
+        showFlags: true,
+        utilsScript: "tel/build/js/utils.js",
+    });
+    input.addEventListener("countrychange", function() {
+      var countryData = iti.getSelectedCountryData();
+      document.getElementById('country').value = (countryData['iso2']);
+    });
+    input.onkeyup = function(){
+      label = document.getElementById("label-error");
+      div = document.getElementById("inside-no");
+      var isValid = iti.isValidNumber();
+      if(!isValid){
+        var error = iti.getValidationError();
+        label.setAttribute("style","display:block");
+        input.setAttribute("class","input-no-error");
+        div.setAttribute("class","inside-no-error");
+        switch(error){
+        case 0: label.innerHTML = "Invalid Number";
+          break;
+        case 1: label.innerHTML = "Invalid Country Code";
+          break;
+        case 2: label.innerHTML = "Too Short";
+          break;
+        case 3: label.innerHTML = "Too Long";
+          break;
+        case 4: label.innerHTML = "Invalid Number";
+          break;
+        case 5: label.innerHTML = "Invalid Length";
+          break;
+        default: label.innerHTML = "Invalid Number";
+        }
+        document.getElementById("signup").disabled = true;
+      }
+      else
+      {
+        label.setAttribute("style","display:none");
+        input.setAttribute("class","input-no");
+        div.setAttribute("class","inside-no");
+        document.getElementById("signup").disabled = false;
+      }
+    }
+  </script>
+<?php } ?>
 </html>
