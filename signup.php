@@ -483,7 +483,7 @@ else{
     </div>
     <label class="label">* <i>- Optional Field</i></label>
     <div class="label-term">
-    <input type="checkbox" class="checkbox" id="term" required><label for="term"> I agree to DigiMart's <a href="" target="_blank">Terms and Conditions </a></label>
+    <input type="checkbox" class="checkbox" id="term" required><label for="term"> I agree to DigiMart's <a href="tnc.php" target="_blank">Terms and Conditions </a></label>
     </div>
     <input type="text" name="country" id="country" value="in" hidden>
     <button class="btn" id="signup" name="signup" type="submit">Sign Up</button>
